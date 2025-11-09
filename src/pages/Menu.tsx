@@ -14,6 +14,7 @@ import { Search, ShoppingCart, Plus, Minus, Leaf } from "lucide-react";
 const Menu = () => {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [dietFilter, setDietFilter] = useState<"all" | "veg" | "non-veg">("all");
 
   const categories = [
     {
@@ -32,6 +33,9 @@ const Menu = () => {
         { id: 4, name: "Veg Thali", price: 120, image: lunchImg, veg: true, popular: true },
         { id: 5, name: "Chicken Biryani", price: 140, image: lunchImg, veg: false, popular: true },
         { id: 6, name: "Paneer Curry", price: 100, image: lunchImg, veg: true },
+        { id: 16, name: "Chicken Curry", price: 130, image: lunchImg, veg: false },
+        { id: 17, name: "Mutton Rogan Josh", price: 160, image: lunchImg, veg: false },
+        { id: 18, name: "Fish Fry", price: 150, image: lunchImg, veg: false, popular: true },
       ]
     },
     {
@@ -41,6 +45,8 @@ const Menu = () => {
         { id: 7, name: "Samosa (2pc)", price: 30, image: snacksImg, veg: true, popular: true },
         { id: 8, name: "Veg Sandwich", price: 50, image: snacksImg, veg: true },
         { id: 9, name: "French Fries", price: 60, image: snacksImg, veg: true },
+        { id: 19, name: "Chicken Wings", price: 100, image: snacksImg, veg: false, popular: true },
+        { id: 20, name: "Egg Puff", price: 40, image: snacksImg, veg: false },
       ]
     },
     {
@@ -77,12 +83,21 @@ const Menu = () => {
 
   const totalItems = Object.values(cart).reduce((sum, count) => sum + count, 0);
 
+  const filteredCategories = categories.map(category => ({
+    ...category,
+    items: category.items.filter(item => {
+      if (dietFilter === "veg") return item.veg;
+      if (dietFilter === "non-veg") return !item.veg;
+      return true;
+    })
+  }));
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="gradient-hero p-6 shadow-medium sticky top-0 z-10">
         <h1 className="text-3xl font-bold text-white mb-4">Our Menu</h1>
-        <div className="relative">
+        <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <Input
             type="search"
@@ -92,22 +107,53 @@ const Menu = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        
+        {/* Diet Filter */}
+        <div className="flex gap-2">
+          <Badge 
+            variant={dietFilter === "all" ? "default" : "secondary"}
+            className="cursor-pointer px-4 py-2 text-sm"
+            onClick={() => setDietFilter("all")}
+          >
+            All
+          </Badge>
+          <Badge 
+            variant={dietFilter === "veg" ? "default" : "secondary"}
+            className="cursor-pointer px-4 py-2 text-sm bg-green-500 hover:bg-green-600"
+            onClick={() => setDietFilter("veg")}
+          >
+            <Leaf className="w-3 h-3 mr-1" />
+            Veg Only
+          </Badge>
+          <Badge 
+            variant={dietFilter === "non-veg" ? "default" : "secondary"}
+            className="cursor-pointer px-4 py-2 text-sm bg-red-500 hover:bg-red-600"
+            onClick={() => setDietFilter("non-veg")}
+          >
+            Non-Veg Only
+          </Badge>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs defaultValue="breakfast" className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto mb-6 flex-nowrap">
-            {categories.map((category) => (
+            {filteredCategories.map((category) => (
               <TabsTrigger key={category.id} value={category.id} className="whitespace-nowrap">
-                {category.name}
+                {category.name} {category.items.length > 0 && `(${category.items.length})`}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {categories.map((category) => (
+          {filteredCategories.map((category) => (
             <TabsContent key={category.id} value={category.id}>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.items.map((item) => (
+              {category.items.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-lg">No {dietFilter === "veg" ? "vegetarian" : "non-vegetarian"} items in this category</p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {category.items.map((item) => (
                   <Card key={item.id} className="overflow-hidden hover:shadow-medium transition-smooth">
                     <div className="relative h-48">
                       <img 
@@ -167,8 +213,9 @@ const Menu = () => {
                       )}
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
           ))}
         </Tabs>
