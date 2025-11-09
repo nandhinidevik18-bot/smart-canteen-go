@@ -24,6 +24,9 @@ const Menu = () => {
         { id: 1, name: "Pancake Stack", price: 60, image: breakfastImg, veg: true, popular: true },
         { id: 2, name: "Masala Dosa", price: 50, image: breakfastImg, veg: true },
         { id: 3, name: "Poha Bowl", price: 40, image: breakfastImg, veg: true },
+        { id: 21, name: "Egg Omelette", price: 50, image: breakfastImg, veg: false, popular: true },
+        { id: 22, name: "Chicken Sausage", price: 70, image: breakfastImg, veg: false },
+        { id: 23, name: "Egg Bhurji", price: 60, image: breakfastImg, veg: false },
       ]
     },
     {
